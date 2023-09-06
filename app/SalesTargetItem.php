@@ -111,7 +111,7 @@ class SalesTargetItem extends Model
             ->join('sales_designations', 'sales_members.sales_designation_id', '=', 'sales_designations.id')
             ->select('sales_designations.commission_percentage as percentage')
             ->first();
-            //make this value into 0.percentage
+        //make this value into 0.percentage
         $commissionPercentage = $commissionPercentage->percentage / 100;
         // dd($percentage);
 
@@ -129,7 +129,6 @@ class SalesTargetItem extends Model
     }
 
     //daily sales quantity of a product
-
     public function todaySaleQuantity($product_id, $customer_id)
     {
         $pos = Pos::where('sale_date', date('Y-m-d'))->where('customer_id', $customer_id)->get();
@@ -150,6 +149,25 @@ class SalesTargetItem extends Model
         return $total;
     }
 
+    //all members sales quantity of a product 
+    public function allMembersSaleQuantity($product_id, $member_id)
+    {
+        $pos = Pos::where('sale_date', date('Y-m-d'))->where('sales_member_id', $member_id)->get();
+        $total = 0;
+        foreach ($pos as $pos) {
+            $total += $pos->items->where('product_id', $product_id)->sum('qty');
+        }
+        return $total;
+    } //allMembersSaleAmount 
+    public function allMembersSaleAmount($product_id, $member_id)
+    {
+        $pos = Pos::where('sale_date', date('Y-m-d'))->where('sales_member_id', $member_id)->get();
+        $total = 0;
+        foreach ($pos as $pos) {
+            $total += $pos->items->where('product_id', $product_id)->sum('sub_total');
+        }
+        return $total;
+    }
     //calculate due of a product 
     public function getDue($product_id, $sales_member_id)
     {

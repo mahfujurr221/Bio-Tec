@@ -113,7 +113,7 @@ class ReportController extends Controller
 
     public function daily_sale_collection(Request $request)
     {
-        $targeted_products = SalesTargetItem::get();
+        $targeted_products = SalesTargetItem::groupBy('product_id')->get();
         //sales member where designation is MPO 
         $members = SalesMember::where('sales_designation_id', 1)->get();
         return view('pages.reports.target_report_daily_sale_collection', compact('targeted_products', 'members'));

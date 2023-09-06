@@ -13,42 +13,15 @@
 @section('content')
     <div class="col-12">
         <div class="card card-body mb-2 print_hidden">
-            <form action="{{ route('target_summary') }}">
+            <form action="">
                 <div class="form-row">
                     <div class="form-group col-md-3">
-                        <select name="designation_id" id="" class="form-control" data-provide="selectpicker"
-                            data-live-search="true" data-size="10">
-                            <option value="">Designation</option>
-                            @foreach (\App\SalesDesignation::all() as $item)
-                                <option value="{{ $item->id }}"
-                                    {{ request()->designation_id == $item->id ? 'selected' : '' }}>
-                                    {{ $item->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="date" name="from_date" id="" class="form-control"
+                            value="{{ request()->from_date }}">
                     </div>
                     <div class="form-group col-md-3">
-                        <select name="member_id" id="" class="form-control" data-provide="selectpicker"
-                            data-live-search="true" data-size="10">
-                            <option value="">Select a Member</option>
-                            @foreach (\App\SalesMember::all() as $item)
-                                <option value="{{ $item->id }}"
-                                    {{ request()->member_id == $item->id ? 'selected' : '' }}>
-                                    {{ $item->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <select name="area_id" id="" class="form-control" data-provide="selectpicker"
-                            data-live-search="true" data-size="10">
-                            <option value="">Select Area</option>
-                            @foreach (\App\SalesArea::all() as $item)
-                                <option value="{{ $item->id }}" {{ request()->area_id == $item->id ? 'selected' : '' }}>
-                                    {{ $item->name }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <input type="date" name="to_date" id="" class="form-control"
+                            value="{{ request()->to_date }}">
                     </div>
                 </div>
                 <div class="form-row mt-2">
@@ -57,7 +30,10 @@
                             <i class="fa fa-sliders"></i>
                             Filter
                         </button>
-                        <a href="{{ route('target_summary') }}" class="btn btn-info">Reset</a>
+                        <a href="{{ route('target_report.daily_sale_collection') }}" class="btn btn-secondary">
+                            <i class="fa fa-redo"></i>
+                            Reset
+                        </a>
                     </div>
                 </div>
             </form>
@@ -67,7 +43,7 @@
         <div class="card-body card-body-soft">
             {{-- @if ($members->count() > 0) --}}
             <div class="table-responsive table-bordered">
-                <table class="table table-soft text-center">
+                <table class="table table-soft">
                     <thead>
                         <tr class="bg-primary">
                             <th>#</th>
@@ -88,16 +64,18 @@
                                 $totalAmount = 0;
                             @endphp
                             <tr>
-                                <td></td>
+                                <td>
+                                    {{ $loop->index + 1 }}
+                                </td>
                                 <td>
                                     {{ $member->name }}
                                 </td>
                                 @foreach ($targeted_products as $product)
                                     <td>
-                                        {{ $product->todaySaleQuantity($product->product_id, $item->customer_id) }}
+                                        {{ $product->allMembersSaleQuantity($product->product_id, $member->id) }}
                                         @php
-                                            $totalAmount += $product->todaySaleAmount($product->product_id, $item->customer_id);
-                                            $quantity = $product->todaySaleQuantity($product->product_id, $item->customer_id);
+                                            $totalAmount += $product->allMembersSaleAmount($product->product_id, $member->id);
+                                            $quantity = $product->allMembersSaleQuantity($product->product_id, $member->id);
                                             if (array_key_exists($product->product_id, $totalQuantities)) {
                                                 $totalQuantities[$product->product_id] += $quantity;
                                             } else {
@@ -106,10 +84,22 @@
                                         @endphp
                                     </td>
                                 @endforeach
+                                <td>
+                                    {{ $totalAmount }} taka
+                                </td>
                             </tr>
+                            @php
+                                $grandTotalAmount += $totalAmount;
+                            @endphp
                         @endforeach
-                        </tr>
                     </tbody>
+                    <tr>
+                        <td colspan="2" class="text-right"><b>Grand Total</b></td>
+                        @foreach ($targeted_products as $product)
+                            <td><b>{{ $totalQuantities[$product->product_id] ?? 0 }} pc</b></td>
+                        @endforeach
+                        <td><b>{{ $grandTotalAmount }} taka</b></td>
+                    </tr>
                 </table>
                 {{-- {{ $members->links() }} --}}
             </div>

@@ -557,7 +557,7 @@
                         <a class="menu-link" href="{{ route('target_report.daily_sale_collection') }}">
                             <img src="{{ asset('dashboard/sidebar_icons/24hr.svg') }}" alt=""
                                 class="sidebar_icon icon">
-                            <span class="title">Daily Sales and Collection Report</span>
+                            <span class="title">Daily Sales/Collection Report</span>
                         </a>
                     </li>
                 @endcan
